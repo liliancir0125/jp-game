@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>五十音冒險 Ver 3.4.3</title>
+    <title>五十音冒險 Ver 3.4.4</title>
     <style>
         :root {
             --pink: #FFD1DC;
@@ -19,81 +19,79 @@
             height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
+        /* 導覽列：縮減高度 */
         .nav-header {
-            width: 100%; background: white; padding: 10px 15px;
+            width: 100%; background: white; padding: 5px 15px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 3px solid var(--pink); flex-shrink: 0;
+            border-bottom: 2px solid var(--pink); flex-shrink: 0;
         }
 
         .btn-home {
-            text-decoration: none; background: var(--yellow); padding: 8px 16px;
-            border-radius: 20px; font-weight: bold; border: 2px solid var(--text);
-            font-size: 1rem; color: var(--text);
+            text-decoration: none; background: var(--yellow); padding: 5px 12px;
+            border-radius: 15px; font-weight: bold; border: 2px solid var(--text);
+            font-size: 0.9rem; color: var(--text);
         }
 
+        /* 控制面板：更緊湊 */
         .control-panel {
-            width: 100%; padding: 8px; background: #fff;
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            width: 100%; padding: 5px; background: #fff;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
         }
 
-        .mode-selector { display: flex; gap: 10px; width: 95%; max-width: 800px; }
+        .mode-selector { display: flex; gap: 8px; width: 95%; max-width: 600px; }
         .mode-btn {
-            flex: 1; padding: 10px; border-radius: 12px; border: 3px solid var(--pink);
-            background: white; font-weight: bold; font-size: 1.2rem; color: var(--text);
+            flex: 1; padding: 8px; border-radius: 10px; border: 2.5px solid var(--pink);
+            background: white; font-weight: bold; font-size: 1.1rem; color: var(--text);
         }
         .mode-btn.active { background: var(--pink); color: white; }
 
-        .row-selector { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+        .row-selector { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
         .row-btn {
-            padding: 6px 12px; background: white; border: 2px solid var(--blue);
-            border-radius: 10px; font-size: 1rem; font-weight: bold; color: var(--text);
+            padding: 4px 10px; background: white; border: 1.5px solid var(--blue);
+            border-radius: 8px; font-size: 0.9rem; font-weight: bold; color: var(--text);
         }
         .row-btn.active { background: var(--blue); }
 
+        /* 遊戲區：向上對齊，減少中間空白 */
         #main-stage {
             flex-grow: 1; width: 100%; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; padding: 10px;
+            align-items: center; justify-content: flex-start; /* 關鍵：改為向上對齊 */
+            padding-top: 20px; /* 頂部留一點空間 */
         }
 
         .quiz-card {
-            background: white; border: 6px solid var(--yellow); border-radius: 25px;
-            padding: 15px 40px; margin-bottom: 20px; text-align: center;
-            box-shadow: 0 6px 0 var(--yellow);
+            background: white; border: 6px solid var(--yellow); border-radius: 20px;
+            padding: 10px 40px; margin-bottom: 15px; /* 縮減與下方按鈕的間距 */
+            text-align: center; box-shadow: 0 5px 0 var(--yellow);
         }
-        #target-kana { font-size: 5rem; font-weight: bold; color: var(--text); line-height: 1.1; }
+        #target-kana { font-size: 4.5rem; font-weight: bold; color: var(--text); line-height: 1; }
 
-        /* 關鍵：調整網格欄數 */
         .item-grid {
-            display: grid;
-            gap: 10px;
-            width: 95%;
-            max-width: 900px; /* 增加最大寬度以適應橫排 */
+            display: grid; gap: 10px; width: 95%; max-width: 800px;
+            margin-top: 5px; /* 讓按鈕緊貼題目 */
         }
 
-        /* 練習模式：5個一橫排 */
         .grid-study { grid-template-columns: repeat(5, 1fr); }
-        
-        /* 測驗模式：4個一橫排 */
         .grid-quiz { grid-template-columns: repeat(4, 1fr); }
 
         .game-item {
-            background: white; border-radius: 15px; border: 3px solid var(--blue);
-            padding: 20px 5px; text-align: center; font-size: 2.5rem;
+            background: white; border-radius: 12px; border: 3px solid var(--blue);
+            padding: 15px 5px; text-align: center; font-size: 2.2rem;
             font-weight: bold; color: var(--text); box-shadow: 0 4px 0 var(--blue);
             transition: transform 0.1s; cursor: pointer;
         }
         .game-item:active { transform: scale(0.95); }
-        .game-item.study { border-color: var(--pink); box-shadow: 0 4px 0 var(--pink); font-size: 2.2rem; padding: 15px 5px; }
-        .study-roma { font-size: 1rem; color: #999; display: block; }
+        .game-item.study { border-color: var(--pink); box-shadow: 0 4px 0 var(--pink); font-size: 2rem; padding: 12px 5px; }
+        .study-roma { font-size: 0.9rem; color: #999; display: block; }
 
         #feedback {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 4rem; font-weight: bold; z-index: 200; pointer-events: none; opacity: 0;
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 3.5rem; font-weight: bold; z-index: 200; pointer-events: none; opacity: 0;
         }
         .pop-feedback { animation: pop 0.8s ease-out; }
         @keyframes pop {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
             100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
         }
 
@@ -104,7 +102,7 @@
 
     <div class="nav-header">
         <a href="https://liliancir0125.github.io/Rumi_Study_Hall/" class="btn-home">🏠 回大廳</a>
-        <div style="font-weight: bold; font-size: 1.1rem;">答對: <span id="correct-count" style="color:#ff8fa3">0</span></div>
+        <div style="font-weight: bold; font-size: 1rem;">答對: <span id="correct-count" style="color:#ff8fa3">0</span></div>
     </div>
 
     <div class="control-panel">
@@ -117,9 +115,10 @@
 
     <div id="main-stage"></div>
     <div id="feedback"></div>
-    <div class="version-tag">Ver. 3.4.3</div>
+    <div class="version-tag">Ver. 3.4.4</div>
 
     <script>
+        // ... (JS 邏輯維持 3.4.3 版本不變)
         const kanaData = {
             'あ': [{k:'あ', r:'a'},{k:'い', r:'i'},{k:'う', r:'u'},{k:'え', r:'e'},{k:'お', r:'o'}],
             'か': [{k:'か', r:'ka'},{k:'き', r:'ki'},{k:'く', r:'ku'},{k:'け', r:'ke'},{k:'こ', r:'ko'}],
@@ -189,7 +188,6 @@
                 document.getElementById('target-kana').innerText = target.k;
                 speak(target.k);
 
-                // 挑選 4 個選項不換行
                 let options = [target];
                 let others = currentList.filter(i => i.r !== target.r);
                 others.sort(() => Math.random() - 0.5);
