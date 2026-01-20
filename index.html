@@ -79,7 +79,7 @@
 
     <div id="main-stage"></div>
     <div id="feedback"></div>
-    <div class="version-tag">Ver. 3.4.5</div>
+    <div class="version-tag">Ver. 3.4.6</div>
 
     <script>
         const kanaData = {
@@ -92,33 +92,21 @@
 
         let currentMode = 'study', activeRows = ['あ'], correctCount = 0, target = {}, isAnswering = false;
 
-        // 1. 調整語速：rate 從 0.8 調慢到 0.65
+        // 1. 調整語速：rate 從 0.8 調慢到 0.5
         function speak(t) {
             const ut = new SpeechSynthesisUtterance(t);
             ut.lang = 'ja-JP'; 
-            ut.rate = 0.65; 
+            ut.rate = 0.5; 
             window.speechSynthesis.speak(ut);
         }
 
         // 3. 答對音效：使用瀏覽器發出清脆的叮叮聲，並說恭喜
         function playSuccessSound() {
             // 語音恭喜
-            const ut = new SpeechSynthesisUtterance("正解です！おめでとう");
+            const ut = new SpeechSynthesisUtterance("正解です！");
             ut.lang = 'ja-JP';
             ut.rate = 1.0;
             window.speechSynthesis.speak(ut);
-
-            // 嗶一聲模擬音效 (使用內建震盪器)
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(880, ctx.currentTime); // 高音 A5
-            gain.gain.setValueAtTime(0.1, ctx.currentTime);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.2);
         }
 
         function setMode(m) {
