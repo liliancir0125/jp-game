@@ -86,7 +86,7 @@
             'あ': [{k:'あ', r:'a'},{k:'い', r:'i'},{k:'う', r:'u'},{k:'え', r:'e'},{k:'お', r:'o'}],
             'か': [{k:'か', r:'ka'},{k:'き', r:'ki'},{k:'く', r:'ku'},{k:'け', r:'ke'},{k:'こ', r:'ko'}],
             'さ': [{k:'さ', r:'sa'},{k:'し', r:'shi'},{k:'す', r:'su'},{k:'せ', r:'se'},{k:'そ', r:'so'}],
-            'た': [{k:'た', r:'ta'},{k:'ち', r:'chi'},{k:'つ', r:'tsu'},{k:'て', r:'te'},{k:'と', r:'to'}], // 2. 修正 to 的錯字
+            'た': [{k:'た', r:'ta'},{k:'ち', r:'chi'},{k:'つ', r:'tsu'},{k:'て', r:'te'},{k:'と', r:'to'}],
             'な': [{k:'な', r:'na'},{k:'に', r:'ni'},{k:'ぬ', r:'nu'},{k:'ね', r:'ne'},{k:'の', r:'no'}]
         };
 
@@ -100,9 +100,8 @@
             window.speechSynthesis.speak(ut);
         }
 
-        // 3. 答對音效：使用瀏覽器發出清脆的叮叮聲，並說恭喜
+        // 3. 答對音效：語音恭喜
         function playSuccessSound() {
-            // 語音恭喜
             const ut = new SpeechSynthesisUtterance("正解です！");
             ut.lang = 'ja-JP';
             ut.rate = 1.0;
