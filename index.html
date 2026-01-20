@@ -3,74 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>五十音冒險 Ver 3.4.4</title>
+    <title>五十音冒險 Ver 3.4.5</title>
     <style>
-        :root {
-            --pink: #FFD1DC;
-            --blue: #BFEAF2;
-            --yellow: #FFF4BD;
-            --text: #5d4037;
-        }
-
+        :root { --pink: #FFD1DC; --blue: #BFEAF2; --yellow: #FFF4BD; --text: #5d4037; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
+        body { margin: 0; padding: 0; background-color: #FFFBFA; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        body {
-            margin: 0; padding: 0; background-color: #FFFBFA;
-            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
-        }
-
-        /* 導覽列：縮減高度 */
         .nav-header {
             width: 100%; background: white; padding: 5px 15px;
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 2px solid var(--pink); flex-shrink: 0;
         }
+        .btn-home { text-decoration: none; background: var(--yellow); padding: 5px 12px; border-radius: 15px; font-weight: bold; border: 2px solid var(--text); font-size: 0.9rem; color: var(--text); }
 
-        .btn-home {
-            text-decoration: none; background: var(--yellow); padding: 5px 12px;
-            border-radius: 15px; font-weight: bold; border: 2px solid var(--text);
-            font-size: 0.9rem; color: var(--text);
-        }
-
-        /* 控制面板：更緊湊 */
-        .control-panel {
-            width: 100%; padding: 5px; background: #fff;
-            display: flex; flex-direction: column; align-items: center; gap: 5px;
-        }
-
+        .control-panel { width: 100%; padding: 5px; background: #fff; display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .mode-selector { display: flex; gap: 8px; width: 95%; max-width: 600px; }
-        .mode-btn {
-            flex: 1; padding: 8px; border-radius: 10px; border: 2.5px solid var(--pink);
-            background: white; font-weight: bold; font-size: 1.1rem; color: var(--text);
-        }
+        .mode-btn { flex: 1; padding: 8px; border-radius: 10px; border: 2.5px solid var(--pink); background: white; font-weight: bold; font-size: 1.1rem; color: var(--text); }
         .mode-btn.active { background: var(--pink); color: white; }
 
         .row-selector { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
-        .row-btn {
-            padding: 4px 10px; background: white; border: 1.5px solid var(--blue);
-            border-radius: 8px; font-size: 0.9rem; font-weight: bold; color: var(--text);
-        }
+        .row-btn { padding: 4px 10px; background: white; border: 1.5px solid var(--blue); border-radius: 8px; font-size: 0.9rem; font-weight: bold; color: var(--text); }
         .row-btn.active { background: var(--blue); }
 
-        /* 遊戲區：向上對齊，減少中間空白 */
-        #main-stage {
-            flex-grow: 1; width: 100%; display: flex; flex-direction: column; 
-            align-items: center; justify-content: flex-start; /* 關鍵：改為向上對齊 */
-            padding-top: 20px; /* 頂部留一點空間 */
-        }
+        #main-stage { flex-grow: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px; }
 
         .quiz-card {
             background: white; border: 6px solid var(--yellow); border-radius: 20px;
-            padding: 10px 40px; margin-bottom: 15px; /* 縮減與下方按鈕的間距 */
-            text-align: center; box-shadow: 0 5px 0 var(--yellow);
+            padding: 15px 40px; margin-bottom: 15px; text-align: center; box-shadow: 0 5px 0 var(--yellow);
+            cursor: pointer; position: relative;
         }
-        #target-kana { font-size: 4.5rem; font-weight: bold; color: var(--text); line-height: 1; }
+        #target-display { font-size: 4.5rem; font-weight: bold; color: var(--text); line-height: 1; }
+        .replay-hint { font-size: 0.8rem; color: #999; margin-top: 5px; }
 
-        .item-grid {
-            display: grid; gap: 10px; width: 95%; max-width: 800px;
-            margin-top: 5px; /* 讓按鈕緊貼題目 */
-        }
-
+        .item-grid { display: grid; gap: 10px; width: 95%; max-width: 800px; }
         .grid-study { grid-template-columns: repeat(5, 1fr); }
         .grid-quiz { grid-template-columns: repeat(4, 1fr); }
 
@@ -87,11 +52,13 @@
         #feedback {
             position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
             font-size: 3.5rem; font-weight: bold; z-index: 200; pointer-events: none; opacity: 0;
+            text-shadow: 2px 2px 10px white;
         }
-        .pop-feedback { animation: pop 0.8s ease-out; }
+        .pop-feedback { animation: pop 1.2s ease-out; }
         @keyframes pop {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
             100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
         }
 
@@ -115,24 +82,28 @@
 
     <div id="main-stage"></div>
     <div id="feedback"></div>
-    <div class="version-tag">Ver. 3.4.4</div>
+    <div class="version-tag">Ver. 3.4.5</div>
 
     <script>
-        // ... (JS 邏輯維持 3.4.3 版本不變)
         const kanaData = {
             'あ': [{k:'あ', r:'a'},{k:'い', r:'i'},{k:'う', r:'u'},{k:'え', r:'e'},{k:'お', r:'o'}],
             'か': [{k:'か', r:'ka'},{k:'き', r:'ki'},{k:'く', r:'ku'},{k:'け', r:'ke'},{k:'こ', r:'ko'}],
             'さ': [{k:'さ', r:'sa'},{k:'し', r:'shi'},{k:'す', r:'su'},{k:'せ', r:'se'},{k:'そ', r:'so'}],
             'た': [{k:'た', r:'ta'},{k:'ち', r:'chi'},{k:'つ', r:'tsu'},{k:'て', r:'te'},{k:'と', r:'to'}],
-            'な': [{k:'な', r:'na'},{k:'に', r:'ni'},{k:'ぬ', r:'nu'},{k:'ね', r:'ne'},{k:'の', r:'no'}]
+            'な': [{k:'な', r:'na'},{k:'內', r:'ni'},{k:'ぬ', r:'nu'},{k:'ね', r:'ne'},{k:'の', r:'no'}]
         };
 
-        let currentMode = 'study', activeRows = ['あ'], correctCount = 0, target = {};
+        let currentMode = 'study', activeRows = ['あ'], correctCount = 0, target = {}, isAnswering = false;
 
-        function speak(t, lang='ja-JP') {
+        function speak(t) {
             const ut = new SpeechSynthesisUtterance(t);
-            ut.lang = lang; ut.rate = 0.8;
+            ut.lang = 'ja-JP'; ut.rate = 0.8;
             window.speechSynthesis.speak(ut);
+        }
+
+        // 使用合成音效模擬歡呼 (或播放簡單頻率)
+        function playCheer() {
+            speak("やった", 'ja-JP'); // 播放日文「太棒了」
         }
 
         function setMode(m) {
@@ -142,10 +113,7 @@
             render();
         }
 
-        function toggleRow(row) {
-            activeRows = [row];
-            updateRowBtns(); render();
-        }
+        function toggleRow(row) { activeRows = [row]; updateRowBtns(); render(); }
 
         function updateRowBtns() {
             const container = document.getElementById('row-btns');
@@ -162,8 +130,8 @@
         function render() {
             const stage = document.getElementById('main-stage');
             stage.innerHTML = '';
+            isAnswering = false;
             let currentList = kanaData[activeRows[0]];
-
             const grid = document.createElement('div');
             grid.className = 'item-grid';
 
@@ -179,17 +147,19 @@
                 stage.appendChild(grid);
             } else {
                 grid.classList.add('grid-quiz');
+                target = currentList[Math.floor(Math.random() * currentList.length)];
+                
                 const qCard = document.createElement('div');
                 qCard.className = 'quiz-card';
-                qCard.innerHTML = `<div id="target-kana">?</div>`;
+                qCard.innerHTML = `<div id="target-display">📢 ?</div><div class="replay-hint">點我重聽一次</div>`;
+                qCard.onclick = () => speak(target.k);
                 stage.appendChild(qCard);
                 
-                target = currentList[Math.floor(Math.random() * currentList.length)];
-                document.getElementById('target-kana').innerText = target.k;
-                speak(target.k);
+                // 題目自動唸一次
+                setTimeout(() => speak(target.k), 300);
 
                 let options = [target];
-                let others = currentList.filter(i => i.r !== target.r);
+                let others = currentList.filter(i => i.k !== target.k);
                 others.sort(() => Math.random() - 0.5);
                 options = options.concat(others.slice(0, 3));
                 options.sort(() => Math.random() - 0.5);
@@ -197,8 +167,8 @@
                 options.forEach(item => {
                     const btn = document.createElement('div');
                     btn.className = 'game-item';
-                    btn.innerText = item.r;
-                    btn.onclick = () => checkAnswer(item.r);
+                    btn.innerText = item.k; // 改為顯示平假名
+                    btn.onclick = () => checkAnswer(item.k);
                     grid.appendChild(btn);
                 });
                 stage.appendChild(grid);
@@ -209,17 +179,22 @@
             const fb = document.getElementById('feedback');
             fb.innerText = text; fb.style.color = color;
             fb.className = 'pop-feedback';
-            setTimeout(() => fb.className = '', 800);
+            setTimeout(() => fb.className = '', 1200);
         }
 
-        function checkAnswer(roma) {
-            if (roma === target.r) {
+        function checkAnswer(kana) {
+            if (isAnswering) return; // 防止重複點擊
+            if (kana === target.k) {
+                isAnswering = true;
                 correctCount++;
                 document.getElementById('correct-count').innerText = correctCount;
                 showFeedback("⭐ 答對了！", "#77dd77");
-                setTimeout(render, 800);
+                playCheer();
+                // 延遲 1.5 秒再跳下一題
+                setTimeout(render, 1500);
             } else {
                 showFeedback("❌ 再試一次", "#ff6961");
+                speak("ちがう", 'ja-JP'); // 唸「不對喔」
             }
         }
 
