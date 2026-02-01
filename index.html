@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>五十音冒險 Ver 3.4.6</title>
+    <title>五十音冒險 Ver 3.4.7</title>
     <style>
         :root { --pink: #FFD1DC; --blue: #BFEAF2; --yellow: #FFF4BD; --text: #5d4037; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
@@ -32,13 +32,22 @@
             background-image: url('https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/volume_up/default/48px.svg');
             background-size: 60%; background-repeat: no-repeat; background-position: center;
             border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            cursor: pointer; margin-bottom: 20px; transition: transform 0.1;
+            cursor: pointer; margin-bottom: 20px; transition: transform 0.1s;
         }
         .quiz-audio-btn:active { transform: scale(0.9); }
 
         .item-grid { display: grid; gap: 10px; width: 95%; max-width: 800px; padding: 10px; }
-        .grid-study { grid-template-columns: repeat(5, 1fr); }
+        .grid-study { grid-template-columns: repeat(2, 1fr); }
         .grid-quiz { grid-template-columns: repeat(2, 1fr); }
+
+        /* 認識練習卡片樣式 */
+        .game-item.study { 
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 10px; border-color: var(--pink); box-shadow: 0 4px 0 var(--pink);
+        }
+        .study-img { width: 100%; max-width: 150px; border-radius: 8px; margin-bottom: 8px; }
+        .study-kana { font-size: 2.5rem; font-weight: bold; color: var(--text); }
+        .study-roma { font-size: 1rem; color: #999; }
 
         .game-item {
             background: white; border-radius: 12px; border: 3px solid var(--blue);
@@ -46,8 +55,7 @@
             font-weight: bold; color: var(--text); box-shadow: 0 4px 0 var(--blue);
             transition: transform 0.1s; cursor: pointer;
         }
-        .game-item.study { border-color: var(--pink); box-shadow: 0 4px 0 var(--pink); font-size: 2rem; }
-        .study-roma { font-size: 0.9rem; color: #999; display: block; }
+        .game-item:active { transform: scale(0.95); }
 
         #feedback {
             position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
@@ -59,6 +67,7 @@
             30% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
             100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); }
         }
+        /* 版本號標籤 */
         .version-tag { position: fixed; bottom: 5px; right: 10px; font-size: 10px; opacity: 0.4; }
     </style>
 </head>
@@ -79,7 +88,7 @@
 
     <div id="main-stage"></div>
     <div id="feedback"></div>
-    <div class="version-tag">Ver. 3.4.6</div>
+    <div class="version-tag">Ver. 3.4.7</div>
 
     <script>
         const kanaData = {
@@ -92,20 +101,23 @@
 
         let currentMode = 'study', activeRows = ['あ'], correctCount = 0, target = {}, isAnswering = false;
 
-        // 1. 調整語速：rate 從 0.8 調慢到 0.5
         function speak(t) {
             const ut = new SpeechSynthesisUtterance(t);
-            ut.lang = 'ja-JP'; 
-            ut.rate = 0.5; 
+            ut.lang = 'ja-JP'; ut.rate = 0.65;
             window.speechSynthesis.speak(ut);
         }
 
-        // 3. 答對音效：語音恭喜
         function playSuccessSound() {
-            const ut = new SpeechSynthesisUtterance("正解です！");
-            ut.lang = 'ja-JP';
-            ut.rate = 1.0;
+            const ut = new SpeechSynthesisUtterance("正解です！おめでとう");
+            ut.lang = 'ja-JP'; ut.rate = 1.0;
             window.speechSynthesis.speak(ut);
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            osc.start(); osc.stop(ctx.currentTime + 0.2);
         }
 
         function setMode(m) {
@@ -122,8 +134,7 @@
             } else {
                 activeRows.push(row);
             }
-            updateRowBtns();
-            render();
+            updateRowBtns(); render();
         }
 
         function updateRowBtns() {
@@ -152,7 +163,11 @@
                 combinedList.forEach(item => {
                     const card = document.createElement('div');
                     card.className = 'game-item study';
-                    card.innerHTML = `${item.k}<span class="study-roma">${item.r}</span>`;
+                    card.innerHTML = `
+                        <img src="images/${item.r}.jpg" class="study-img" alt="${item.k}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                        <div class="study-kana">${item.k}</div>
+                        <div class="study-roma">${item.r}</div>
+                    `;
                     card.onclick = () => speak(item.k);
                     grid.appendChild(card);
                 });
@@ -175,7 +190,7 @@
                 options.forEach(item => {
                     const btn = document.createElement('div');
                     btn.className = 'game-item';
-                    btn.innerText = item.k; 
+                    btn.innerText = item.k;
                     btn.onclick = () => checkAnswer(item.k);
                     grid.appendChild(btn);
                 });
@@ -197,7 +212,7 @@
                 correctCount++;
                 document.getElementById('correct-count').innerText = correctCount;
                 showFeedback("⭐ 答對了！", "#77dd77");
-                playSuccessSound(); // 呼叫答對音效
+                playSuccessSound();
                 setTimeout(render, 2500);
             } else {
                 showFeedback("❌ 再試一次", "#ff6961");
