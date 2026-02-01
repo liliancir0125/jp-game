@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>五十音冒險 Ver 3.5.2</title>
+    <title>五十音冒險 Ver 3.5.3</title>
     <style>
         :root { --pink: #FFD1DC; --blue: #BFEAF2; --yellow: #FFF4BD; --text: #5d4037; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
@@ -25,26 +25,30 @@
         .row-btn { padding: 8px 15px; background: white; border: 1.5px solid var(--blue); border-radius: 8px; font-size: 1rem; font-weight: bold; color: var(--text); cursor: pointer; }
         .row-btn.active { background: #64d8ff; color: white; border-color: #0099cc; }
 
-        /* 核心修正：讓主舞台可以正確捲動且不被遮擋 */
         #main-stage { 
             flex-grow: 1; 
             width: 100%; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            overflow-y: auto; /* 開啟捲動 */
+            overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
-            padding: 20px 0 100px 0; /* 底部留白 100px 確保最後一行看得到 */
+            padding: 20px 0 100px 0; 
         }
 
-        .item-grid { display: grid; gap: 15px; width: 95%; max-width: 1100px; padding: 10px; }
-        .grid-study { grid-template-columns: repeat(5, 1fr); } 
+        .item-grid { display: grid; gap: 20px; width: 95%; max-width: 1200px; padding: 10px; }
+        
+        /* 認識模式改回 3 欄，讓圖更大 */
+        .grid-study { grid-template-columns: repeat(3, 1fr); } 
+        /* 測驗模式維持 4 欄 */
         .grid-quiz { grid-template-columns: repeat(4, 1fr); }
 
-        .game-item.study { display: flex; flex-direction: column; align-items: center; padding: 12px; border-color: var(--pink); box-shadow: 0 4px 0 var(--pink); }
-        .study-img { width: 100%; max-height: 140px; object-fit: contain; border-radius: 8px; margin-bottom: 10px; }
-        .study-kana { font-size: 2rem; font-weight: bold; color: var(--text); }
-        .study-roma { font-size: 1rem; color: #999; }
+        .game-item.study { display: flex; flex-direction: column; align-items: center; padding: 15px; border-color: var(--pink); box-shadow: 0 6px 0 var(--pink); }
+        
+        /* 圖片放大優化 */
+        .study-img { width: 100%; max-height: 250px; object-fit: contain; border-radius: 10px; margin-bottom: 15px; }
+        .study-kana { font-size: 2.8rem; font-weight: bold; color: var(--text); }
+        .study-roma { font-size: 1.2rem; color: #999; }
 
         .game-item {
             background: white; border-radius: 15px; border: 3px solid var(--blue);
@@ -93,7 +97,7 @@
 
     <div id="main-stage"></div>
     <div id="feedback"></div>
-    <div class="version-tag">Ver. 3.5.2</div>
+    <div class="version-tag">Ver. 3.5.3</div>
 
     <script>
         const kanaData = {
@@ -164,7 +168,7 @@
         function render() {
             const stage = document.getElementById('main-stage');
             stage.innerHTML = '';
-            stage.scrollTop = 0; // 切換模式或行數時回到頂部
+            stage.scrollTop = 0;
             isAnswering = false;
             let combinedList = [];
             activeRows.forEach(row => { combinedList = combinedList.concat(kanaData[row]); });
