@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>五十音冒險 Ver 3.5.1</title>
+    <title>五十音冒險 Ver 3.5.2</title>
     <style>
         :root { --pink: #FFD1DC; --blue: #BFEAF2; --yellow: #FFF4BD; --text: #5d4037; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
@@ -16,7 +16,7 @@
         }
         .btn-home { text-decoration: none; background: var(--yellow); padding: 5px 12px; border-radius: 15px; font-weight: bold; border: 2px solid var(--text); font-size: 0.9rem; color: var(--text); }
 
-        .control-panel { width: 100%; padding: 5px; background: #fff; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .control-panel { width: 100%; padding: 5px; background: #fff; display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
         .mode-selector { display: flex; gap: 8px; width: 95%; max-width: 600px; }
         .mode-btn { flex: 1; padding: 8px; border-radius: 10px; border: 2.5px solid var(--pink); background: white; font-weight: bold; font-size: 1.1rem; color: var(--text); }
         .mode-btn.active { background: var(--pink); color: white; }
@@ -25,16 +25,17 @@
         .row-btn { padding: 8px 15px; background: white; border: 1.5px solid var(--blue); border-radius: 8px; font-size: 1rem; font-weight: bold; color: var(--text); cursor: pointer; }
         .row-btn.active { background: #64d8ff; color: white; border-color: #0099cc; }
 
-        #main-stage { flex-grow: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px; overflow-y: auto; }
-
-        .quiz-audio-btn {
-            width: 120px; height: 120px; background-color: var(--blue);
-            background-image: url('https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/volume_up/default/48px.svg');
-            background-size: 60%; background-repeat: no-repeat; background-position: center;
-            border-radius: 50%; border: 5px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            cursor: pointer; margin-bottom: 30px; transition: transform 0.1s;
+        /* 核心修正：讓主舞台可以正確捲動且不被遮擋 */
+        #main-stage { 
+            flex-grow: 1; 
+            width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            overflow-y: auto; /* 開啟捲動 */
+            -webkit-overflow-scrolling: touch; 
+            padding: 20px 0 100px 0; /* 底部留白 100px 確保最後一行看得到 */
         }
-        .quiz-audio-btn:active { transform: scale(0.9); }
 
         .item-grid { display: grid; gap: 15px; width: 95%; max-width: 1100px; padding: 10px; }
         .grid-study { grid-template-columns: repeat(5, 1fr); } 
@@ -53,6 +54,14 @@
         }
         .game-item:active { transform: scale(0.95); }
 
+        .quiz-audio-btn {
+            width: 120px; height: 120px; background-color: var(--blue);
+            background-image: url('https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/volume_up/default/48px.svg');
+            background-size: 60%; background-repeat: no-repeat; background-position: center;
+            border-radius: 50%; border: 5px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: pointer; margin-bottom: 30px; flex-shrink: 0;
+        }
+
         #feedback {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-size: 4rem; font-weight: bold; z-index: 200; pointer-events: none; opacity: 0;
@@ -64,7 +73,7 @@
             30% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
             100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
         }
-        .version-tag { position: fixed; bottom: 8px; right: 15px; font-size: 12px; opacity: 0.5; font-weight: bold; }
+        .version-tag { position: fixed; bottom: 8px; right: 15px; font-size: 12px; opacity: 0.5; font-weight: bold; background: rgba(255,255,255,0.7); padding: 2px 5px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -84,7 +93,7 @@
 
     <div id="main-stage"></div>
     <div id="feedback"></div>
-    <div class="version-tag">Ver. 3.5.1</div>
+    <div class="version-tag">Ver. 3.5.2</div>
 
     <script>
         const kanaData = {
@@ -92,21 +101,19 @@
             'か': [{k:'か', r:'ka'},{k:'き', r:'ki'},{k:'く', r:'ku'},{k:'け', r:'ke'},{k:'こ', r:'ko'}],
             'さ': [{k:'さ', r:'sa'},{k:'し', r:'shi'},{k:'す', r:'su'},{k:'せ', r:'se'},{k:'そ', r:'so'}],
             'た': [{k:'た', r:'ta'},{k:'ち', r:'chi'},{k:'つ', r:'tsu'},{k:'て', r:'te'},{k:'と', r:'to'}],
-            'な': [{k:'な', r:'na'},{k:'ni', r:'ni'},{k:'ぬ', r:'nu'},{k:'ね', r:'ne'},{k:'の', r:'no'}]
+            'な': [{k:'な', r:'na'},{k:'に', r:'ni'},{k:'ぬ', r:'nu'},{k:'ね', r:'ne'},{k:'の', r:'no'}]
         };
 
         let currentMode = 'study', activeRows = ['あ'], correctCount = 0, target = {}, isAnswering = false;
 
-        // 核心修改：唸單個音節時使用超慢速 (0.5)
         function speakKana(t) {
-            window.speechSynthesis.cancel(); // 先停止之前的聲音，避免重疊
+            window.speechSynthesis.cancel();
             const ut = new SpeechSynthesisUtterance(t);
             ut.lang = 'ja-JP'; 
             ut.rate = 0.5; 
             window.speechSynthesis.speak(ut);
         }
 
-        // 唸整句話或回饋時使用正常速度 (1.0)
         function speakSentence(t) {
             const ut = new SpeechSynthesisUtterance(t);
             ut.lang = 'ja-JP'; 
@@ -157,6 +164,7 @@
         function render() {
             const stage = document.getElementById('main-stage');
             stage.innerHTML = '';
+            stage.scrollTop = 0; // 切換模式或行數時回到頂部
             isAnswering = false;
             let combinedList = [];
             activeRows.forEach(row => { combinedList = combinedList.concat(kanaData[row]); });
