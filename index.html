@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>五十音冒險 Ver 3.5.3</title>
     <style>
-        :root { --pink: #FFD1DC; --blue: #BFEAF2; --yellow: #FFF4BD; --text: #5d4037; }
+        :root { --pink: #FCD7DE; --blue: #5FAAE1; --yellow: #FCE883; --purple: #D1C2E0; --purple-dark: #9E86BA; --text: #5d4037; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
         body { margin: 0; padding: 0; background-color: #FFFBFA; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
@@ -14,7 +14,8 @@
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 2px solid var(--pink); flex-shrink: 0;
         }
-        .btn-home { text-decoration: none; background: var(--yellow); padding: 5px 12px; border-radius: 15px; font-weight: bold; border: 2px solid var(--text); font-size: 0.9rem; color: var(--text); }
+        .btn-home { text-decoration: none; background: var(--yellow); padding: 5px 12px; border-radius: 15px; font-weight: bold; border: 2px solid var(--text); font-size: 0.9rem; color: var(--text); display: flex; align-items: center; gap: 5px; }
+        .btn-home svg { flex-shrink: 0; }
 
         .control-panel { width: 100%; padding: 5px; background: #fff; display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
         .mode-selector { display: flex; gap: 8px; width: 95%; max-width: 600px; }
@@ -23,7 +24,7 @@
 
         .row-selector { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 5px; }
         .row-btn { padding: 8px 15px; background: white; border: 1.5px solid var(--blue); border-radius: 8px; font-size: 1rem; font-weight: bold; color: var(--text); cursor: pointer; }
-        .row-btn.active { background: #64d8ff; color: white; border-color: #0099cc; }
+        .row-btn.active { background: var(--purple-dark); color: white; border-color: var(--purple-dark); }
 
         #main-stage { 
             flex-grow: 1; 
@@ -83,7 +84,7 @@
 <body>
 
     <div class="nav-header">
-        <a href="https://liliancir0125.github.io/Rumi_Study_Hall/" class="btn-home">🏠 回大廳</a>
+        <a href="https://liliancir0125.github.io/Rumi_Study_Hall/" class="btn-home"><svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,3 21,11 3,11" fill="var(--pink)" stroke="var(--text)" stroke-width="1.8" stroke-linejoin="round"/><rect x="5" y="11" width="14" height="10" rx="2.5" fill="#FFFFFF" stroke="var(--text)" stroke-width="1.8"/><rect x="10" y="15" width="4" height="6" rx="1.5" fill="var(--blue)" stroke="var(--text)" stroke-width="1.4"/><circle cx="16.5" cy="15.5" r="1.4" fill="var(--yellow)" stroke="var(--text)" stroke-width="1"/></svg> 回大廳</a>
         <div style="font-weight: bold; font-size: 1.2rem;">答對: <span id="correct-count" style="color:#ff8fa3">0</span></div>
     </div>
 
